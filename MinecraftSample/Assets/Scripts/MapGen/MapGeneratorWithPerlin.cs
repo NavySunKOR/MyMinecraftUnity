@@ -2,6 +2,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public class GeneratedTerrain
+{
+    public List<GameObject> meshes;
+
+    public GeneratedTerrain()
+    {
+        meshes = new List<GameObject>();
+    }
+}
+
 public class MapGeneratorWithPerlin : MonoBehaviour
 {
     public enum RenderType
@@ -10,9 +20,10 @@ public class MapGeneratorWithPerlin : MonoBehaviour
         Color
     }
 
-    [Header("해상도 조정 - width, height 설정")]
-    public int width;
-    public int height;
+    [Header("가시거리")]
+    public int visibleDistance;
+    [Header("해상도 조정 - square 설정(정사각형의 한면)")]
+    public int square;
     [Header("스케일 조정 - 스케일이 높을 수록 지형들의 크기가 커진다.(지형 밀도가 작아짐)")]
     public int scaleFactor; 
     public MeshRenderer meshRenderer;
@@ -20,13 +31,19 @@ public class MapGeneratorWithPerlin : MonoBehaviour
     public GameObject meshCube;
     public RenderType renderType;
 
+    private Dictionary<Vector2, GeneratedTerrain> terrainDic;
 
 
-    private float[,] maps; 
+
+    private float[,] maps;
+    private Transform playerTr;
+    private Vector2 playerPos = new Vector2();
 
     private void Start()
     {
-        maps = CreateGenMap(width, height, scaleFactor);
+        playerTr = Camera.main.transform;
+        terrainDic = new Dictionary<Vector2, GeneratedTerrain>();
+        maps = CreateGenMap(square, square, scaleFactor);
         if(renderType == RenderType.Color)
         {
             RenderMapWithColor();
@@ -37,8 +54,12 @@ public class MapGeneratorWithPerlin : MonoBehaviour
         }
     }
 
+    private void Update()
+    {
+        playerPos.x = playerTr.position.x;
+        playerPos.y = playerTr.position.z;
 
- 
+    }
 
     private void OnGUI()
     {
@@ -65,7 +86,7 @@ public class MapGeneratorWithPerlin : MonoBehaviour
 
     private void RecreateMap()
     {
-        maps = CreateGenMap(width, height, scaleFactor);
+        maps = CreateGenMap(square, square, scaleFactor);
         if (renderType == RenderType.Color)
             RenderMapWithColor();
         else
@@ -75,17 +96,17 @@ public class MapGeneratorWithPerlin : MonoBehaviour
 
     private void RenderMapWithColor()
     {
-        Color[] colors = new Color[width * height];
-        for (int x = 0; x < width; x++)
+        Color[] colors = new Color[square * square];
+        for (int x = 0; x < square; x++)
         {
-            for (int y = 0; y < height; y++)
+            for (int y = 0; y < square; y++)
             {
-                colors[x + y * width] = Color.Lerp(Color.white, Color.black, maps[x, y]);
+                colors[x + y * square] = Color.Lerp(Color.white, Color.black, maps[x, y]);
                 //Debug.Log("x : " + x + " / y : " + y + " : " + colors[x + y]);
             }
         }
 
-        Texture2D texture2D = new Texture2D(width, height);
+        Texture2D texture2D = new Texture2D(square, square);
         texture2D.SetPixels(colors);
         texture2D.Apply();
 
@@ -97,15 +118,18 @@ public class MapGeneratorWithPerlin : MonoBehaviour
         {
             Destroy(tr.gameObject);
         }
-        for (int x = 0; x < width; x++)
+        GeneratedTerrain generatedTerrain = new GeneratedTerrain();
+        for (int x = 0; x < square; x++)
         {
-            for (int y = 0; y < height; y++)
+            for (int y = 0; y < square; y++)
             {
                 int perlinCount = (int)(maps[x, y] * 10);
-                GameObject gb = Instantiate(meshCube, new Vector3(x - (width / 2) , perlinCount, y - (height / 2)),Quaternion.identity);
+                GameObject gb = Instantiate(meshCube, new Vector3(x - (square / 2) , perlinCount, y - (square / 2)),Quaternion.identity);
                 gb.transform.parent = meshTr;
+                generatedTerrain.meshes.Add(gb);
             }
         }
 
+        terrainDic.Add(new Vector2(Camera.main.transform.position.x, Camera.main.transform.position.z), generatedTerrain);
     }
 }

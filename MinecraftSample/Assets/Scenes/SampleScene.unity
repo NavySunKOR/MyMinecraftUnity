@@ -131,6 +131,7 @@ GameObject:
   m_Component:
   - component: {fileID: 103022306}
   - component: {fileID: 103022305}
+  - component: {fileID: 103022307}
   m_Layer: 0
   m_Name: GameObject
   m_TagString: Untagged
@@ -150,8 +151,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 543896f085db5f0498e4bdd716a40b03, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  width: 50
-  height: 50
+  visibleDistance: 0
+  square: 0
   scaleFactor: 10
   meshRenderer: {fileID: 532161810}
   meshTr: {fileID: 1272735840}
@@ -172,6 +173,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &103022307
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 103022304}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b319b4ba2fbfa8c48807c358486f2167, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &532161808
 GameObject:
   m_ObjectHideFlags: 0
